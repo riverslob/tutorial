@@ -1,2 +1,2 @@
 rootProject.name = "application"
-include("app", "list", "utilities")
+include("redis-queue", "list", "utilities")
