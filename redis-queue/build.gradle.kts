@@ -5,32 +5,33 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
+//    testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
 
-    implementation("com.google.guava:guava:30.1.1-jre")
+//    implementation("com.google.guava:guava:30.1.1-jre")
 
-    implementation("ognl:ognl:3.2.21")
-    implementation("org.projectlombok:lombok:1.18.20")
-    annotationProcessor("org.projectlombok:lombok:1.18.20")
+//    implementation("ognl:ognl:3.2.21")
+//    implementation("org.projectlombok:lombok:1.18.20")
+//    annotationProcessor("org.projectlombok:lombok:1.18.20")
 
-    implementation("org.mapstruct:mapstruct:1.4.2.Final")
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.4.2.Final")
+//    implementation("org.mapstruct:mapstruct:1.4.2.Final")
+//    annotationProcessor("org.mapstruct:mapstruct-processor:1.4.2.Final")
 
-    implementation("org.hibernate:hibernate-validator:6.0.13.Final")
-    implementation("com.github.ben-manes.caffeine:caffeine:3.0.3")
-    implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("commons-beanutils:commons-beanutils:1.9.4")
+//    implementation("org.hibernate:hibernate-validator:6.0.13.Final")
+//    implementation("com.github.ben-manes.caffeine:caffeine:3.0.3")
+//    implementation("org.apache.commons:commons-lang3:3.12.0")
+//    implementation("commons-beanutils:commons-beanutils:1.9.4")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-cache")
+//    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+//    implementation("org.springframework.boot:spring-boot-starter-cache")
 //    implementation('org.springframework.boot:spring-boot-starter-validator'
-    implementation("org.springframework.data:spring-data-redis:2.5.2")
+//    implementation("org.springframework.data:spring-data-redis:2.5.2")
+    implementation("org.springframework.data:spring-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-data-redis") {
         exclude("io.lettuce", "lettuce-core")
     }
 
     implementation("redis.clients:jedis:3.6.1")
-    implementation("org.redisson:redisson-spring-boot-starter:3.13.6")
+//    implementation("org.redisson:redisson-spring-boot-starter:3.13.6")
 
 //    implementation('com.h2database:h2'
 //    implementation "io.projectreactor:reactor-core:3.4.6"

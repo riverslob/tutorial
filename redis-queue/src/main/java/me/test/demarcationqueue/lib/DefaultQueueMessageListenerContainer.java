@@ -15,6 +15,7 @@
  */
 package me.test.demarcationqueue.lib;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,7 +23,7 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.stream.Cancelable;
 import org.springframework.data.redis.stream.Subscription;
 import org.springframework.data.redis.stream.Task;
@@ -38,7 +39,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+
+import static me.test.demarcationqueue.lib.LuaScriptConst.QUEUE_READ_AND_ADD_ACK;
 
 @Slf4j
 public class DefaultQueueMessageListenerContainer<K, V> implements QueueMessageListenerContainer<K, V> {
@@ -178,23 +180,34 @@ public class DefaultQueueMessageListenerContainer<K, V> implements QueueMessageL
     }
 
     private Optional<CallBackData<V>> readData(QueueReadOptions<K> streamRequest) {
-        List<V> execute = template.opsForList().range(streamRequest.getKey(), 0, containerOptions.getBatchSize() - 1);
-        Optional<List<V>> list = Optional.ofNullable(execute).filter(it -> !CollectionUtils.isEmpty(it));
-        list.ifPresent(it -> {
-            if (streamRequest.needAck()) {
-                template.opsForZSet().add(streamRequest.getAckKey(), it.stream().map(id -> ZSetOperations.TypedTuple.of(id, streamRequest.getScore())).collect(Collectors.toSet()));
-                template.opsForList().trim(streamRequest.getKey(), it.size(), -1);
-            }
-        });
-//        List<V> vs = list.orElse(null);
-        Consumer<List<V>> ack = data1 -> template.opsForZSet().remove(streamRequest.getAckKey(), data1.toArray());
-        Consumer<List<V>> putItBack = data -> {
+//        List<V> execute = template.opsForList().range(streamRequest.getKey(), 0, containerOptions.getBatchSize() - 1);
+//        Optional<List<V>> list = Optional.ofNullable(execute).filter(it -> !CollectionUtils.isEmpty(it));
+//        list.ifPresent(it -> {
+//            if (streamRequest.needAck()) {
+//                Set<ZSetOperations.TypedTuple<V>> collect = it.stream().map(id -> new DefaultTypedTuple<V>(id, streamRequest.getScore())).collect(Collectors.toSet());
+//                template.opsForZSet().add(streamRequest.getAckKey(), collect);
+//                template.opsForList().trim(streamRequest.getKey(), it.size(), -1);
+//            }
+//
+//
+//        });
+        List<V> execute = template.execute(RedisScript.of(QUEUE_READ_AND_ADD_ACK, List.class),
+                Lists.newArrayList(streamRequest.getKey(), streamRequest.getAckKey()),
+                String.valueOf(containerOptions.getBatchSize()), String.valueOf(streamRequest.getAckScorePrefix()));
+        return Optional.ofNullable(execute).filter(it1 -> !CollectionUtils.isEmpty(it1)).map(it -> new CallBackData<>(it, getPutItBack(streamRequest), getAck(streamRequest)));
+    }
+
+    private Consumer<List<V>> getAck(QueueReadOptions<K> streamRequest) {
+        return data -> template.opsForZSet().remove(streamRequest.getAckKey(), data.toArray());
+    }
+
+    private Consumer<List<V>> getPutItBack(QueueReadOptions<K> streamRequest) {
+        return data -> {
 //          从zset取出，再加回redis队列
 //        todo 需要考虑放回太多导致无法计算的场景,需要加锁
             template.opsForList().leftPushAll(streamRequest.getKey(), data);
-            ack.accept(data);
+            getAck(streamRequest).accept(data);
         };
-        return list.map(it -> new CallBackData<>(it, putItBack, ack));
     }
 
 

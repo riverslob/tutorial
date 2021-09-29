@@ -30,7 +30,7 @@ public abstract class BaseJobMessageListener implements MessageListener<String> 
 
     protected void execute(List<String> data, Consumer<List<String>> putItBack, Consumer<List<String>> ack) {
         //定界
-        log.info("size {} start demarcation,data {}", data.size(), String.join(",", data));
+        log.info("thread {} size {} start demarcation,data {}", Thread.currentThread().getName(),data.size(), String.join(",", data));
         try {
             TimeUnit.SECONDS.sleep(new Random().nextInt(20));
         } catch (InterruptedException e) {
