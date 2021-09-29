@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:h2:./data/h2-database
+  h2:
+    console:
+      enabled:  true
+      settings:
+        trace: true
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+#  cache:
+#    type: caffeine
+#    cache-names:
+#      - userCache
+#    caffeine:
+#      spec: maximumSize=1024,refreshAfterWrite=60s
+
+logging:
+  level:
+    org.springframework.jdbc: TRACE
+  config: classpath:logging-config.xml
