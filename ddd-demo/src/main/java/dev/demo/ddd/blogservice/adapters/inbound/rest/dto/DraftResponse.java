@@ -1,6 +1,10 @@
 package dev.demo.ddd.blogservice.adapters.inbound.rest.dto;
 
-public class DraftDto {
+import dev.demo.ddd.blogservice.common.archrules.RequestDto;
+import dev.demo.ddd.blogservice.common.archrules.ResponseDto;
+
+@ResponseDto
+public class DraftResponse {
     private String blogId;
     private String title;
     private String body;

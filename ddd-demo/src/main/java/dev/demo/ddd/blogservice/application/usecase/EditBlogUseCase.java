@@ -1,5 +1,6 @@
 package dev.demo.ddd.blogservice.application.usecase;
 
+import dev.demo.ddd.blogservice.common.archrules.UseCase;
 import dev.demo.ddd.blogservice.domain.contexts.blogcontext.Blog;
 import dev.demo.ddd.blogservice.domain.contexts.blogcontext.BlogDomainService;
 import dev.demo.ddd.blogservice.domain.contexts.blogcontext.BlogRepository;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Component
+@UseCase
 public class EditBlogUseCase {
     private final BlogDomainService blogDomainService;
 

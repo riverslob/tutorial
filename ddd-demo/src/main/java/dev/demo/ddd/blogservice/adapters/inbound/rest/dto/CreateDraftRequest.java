@@ -1,5 +1,8 @@
 package dev.demo.ddd.blogservice.adapters.inbound.rest.dto;
 
+import dev.demo.ddd.blogservice.common.archrules.RequestDto;
+
+@RequestDto
 public class CreateDraftRequest {
     private String title;
     private String body;

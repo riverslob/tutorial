@@ -1,7 +1,7 @@
 package dev.demo.ddd.blogservice.adapters.inbound.rest;
 
 import dev.demo.ddd.blogservice.adapters.inbound.rest.dto.CreateDraftRequest;
-import dev.demo.ddd.blogservice.adapters.inbound.rest.dto.DraftDto;
+import dev.demo.ddd.blogservice.adapters.inbound.rest.dto.DraftResponse;
 import dev.demo.ddd.blogservice.adapters.inbound.rest.dto.GetDraftRequest;
 import dev.demo.ddd.blogservice.adapters.inbound.rest.dto.SaveDraftRequest;
 import dev.demo.ddd.blogservice.application.usecase.EditBlogUseCase;
@@ -36,20 +36,20 @@ public class DraftController {
     }
 
     @GetMapping("/get")
-    public DraftDto getDraft(GetDraftRequest request) {
+    public DraftResponse getDraft(GetDraftRequest request) {
         Blog blog = queryDraftUseCase.getByBlogId(UUID.fromString(request.getBlogId()));
         return buildDraftDto(blog);
     }
 
     @PostMapping("/update")
-    public DraftDto updateDraft(SaveDraftRequest request) {
+    public DraftResponse updateDraft(SaveDraftRequest request) {
         Blog blog =
                 editBlogUseCase.updateDraft(UUID.fromString(request.getBlogId()), request.getTitle(), request.getBody());
         return buildDraftDto(blog);
     }
 
-    private DraftDto buildDraftDto(Blog blog) {
-        DraftDto draftDto = new DraftDto();
+    private DraftResponse buildDraftDto(Blog blog) {
+        DraftResponse draftDto = new DraftResponse();
         draftDto.setBlogId(blog.getId().toString());
         draftDto.setTitle(blog.getDraft().getTitle());
         draftDto.setBody(blog.getDraft().getBody());

@@ -1,11 +1,13 @@
 package dev.demo.ddd.blogservice.domain.contexts.blogcontext;
 
 
+import dev.demo.ddd.blogservice.common.archrules.DomainEntity;
 import dev.demo.ddd.blogservice.domain.contexts.blogcontext.exceptions.NoNeedToPublishException;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@DomainEntity
 public class Blog {
     private final UUID id;
     private final UUID authorId;

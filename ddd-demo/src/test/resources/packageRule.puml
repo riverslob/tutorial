@@ -1,0 +1,11 @@
+@startuml
+[Inbound Adaptor] <<..adaptor.inbound..>> as inbound
+
+[Application] <<..application..>> as application
+
+[Outbound Adaptor] <<..adaptor.outbound..>> as outbound
+
+inbound --> application
+outbound -right-> application
+@enduml
+

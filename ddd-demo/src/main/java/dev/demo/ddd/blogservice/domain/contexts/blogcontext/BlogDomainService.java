@@ -1,9 +1,11 @@
 package dev.demo.ddd.blogservice.domain.contexts.blogcontext;
 
+import dev.demo.ddd.blogservice.common.archrules.DomainService;
 import dev.demo.ddd.blogservice.domain.common.EntityNotFoundException;
 
 import java.util.UUID;
 
+@DomainService
 public class BlogDomainService {
 
     private final BlogRepository blogRepository;

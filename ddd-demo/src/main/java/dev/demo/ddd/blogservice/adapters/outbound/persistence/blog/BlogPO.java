@@ -1,5 +1,6 @@
 package dev.demo.ddd.blogservice.adapters.outbound.persistence.blog;
 
+import dev.demo.ddd.blogservice.common.archrules.PersistenceObject;
 import dev.demo.ddd.blogservice.domain.contexts.blogcontext.Blog;
 import dev.demo.ddd.blogservice.domain.contexts.blogcontext.Draft;
 import dev.demo.ddd.blogservice.domain.contexts.blogcontext.PublishedBlog;
@@ -7,6 +8,7 @@ import dev.demo.ddd.blogservice.domain.contexts.blogcontext.PublishedBlog;
 import java.time.Instant;
 import java.util.UUID;
 
+@PersistenceObject
 public class BlogPO {
     private String id;
     private String authorId;

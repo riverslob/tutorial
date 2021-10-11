@@ -1,8 +1,11 @@
 package dev.demo.ddd.blogservice.domain.contexts.blogcontext;
 
+import dev.demo.ddd.blogservice.common.archrules.DomainEntity;
+
 import java.time.Instant;
 import java.util.Objects;
 
+@DomainEntity
 public class Draft {
     private final String title;
     private final String body;
