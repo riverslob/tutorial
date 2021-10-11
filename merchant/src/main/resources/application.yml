@@ -1,6 +1,9 @@
 spring:
   datasource:
     url: jdbc:h2:./data/h2-database
+    username: root
+    password: root
+    driver-class-name: org.h2.Driver
   h2:
     console:
       enabled:  true

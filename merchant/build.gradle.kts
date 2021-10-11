@@ -43,7 +43,6 @@ dependencies {
 //    testImplementation "org.spockframework:spock-spring:$spockVersion"
     testImplementation("cglib:cglib-nodep:3.2.5")
     testImplementation("org.mockito:mockito-junit-jupiter:3.9.0")
-    testImplementation("com.tngtech.archunit:archunit-junit5:0.21.0")
 }
 
 
