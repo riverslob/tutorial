@@ -21,7 +21,8 @@ dependencies {
 //    implementation("org.apache.commons:commons-lang3:3.12.0")
 //    implementation("commons-beanutils:commons-beanutils:1.9.4")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+//    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.3")
 //    implementation("org.springframework.boot:spring-boot-starter-cache")
 //    implementation('org.springframework.boot:spring-boot-starter-validator'
 //    implementation("org.springframework.data:spring-data-redis:2.5.2")

@@ -1,2 +1,2 @@
-rootProject.name = "application"
-include("redis-queue", "merchant", "utilities")
+rootProject.name = "tutorial"
+include("redis-queue", "merchant", "utilities","ddd-demo")
