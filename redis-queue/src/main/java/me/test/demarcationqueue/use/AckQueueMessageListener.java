@@ -6,20 +6,22 @@ import me.test.demarcationqueue.lib.QueueMessageListenerContainer.QueueReadRegis
 import me.test.demarcationqueue.lib.QueueReadOptions;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 @Slf4j
 @Component
-public class HighQueueMessageListener extends BaseJobMessageListener {
+public class AckQueueMessageListener extends BaseJobMessageListener {
     @Override
     protected void updateRunningNum(int num) {
         DemarcationFlag.getInstance().updateHighRunningNum(num);
     }
 
     @Component
-    public static class HighQueueReadRegisterConfig implements QueueReadRegisterConfig<String, String> {
+    public static class AckQueueReadRegisterConfig implements QueueReadRegisterConfig<String, String> {
         private final QueueReadOptions<String> options;
-        private final HighQueueMessageListener listener;
+        private final AckQueueMessageListener listener;
 
-        public HighQueueReadRegisterConfig(HighQueueMessageListener listener) {
+        public AckQueueReadRegisterConfig(AckQueueMessageListener listener) {
             Config config = Config.getInstance();
             this.options = buildReadOptions(config);
             this.listener = listener;
@@ -27,8 +29,9 @@ public class HighQueueMessageListener extends BaseJobMessageListener {
 
         private QueueReadOptions<String> buildReadOptions(Config config) {
             return QueueReadOptions.<String>builder()
-                    .key(config.getHighQueueKey())
                     .ackKey(config.getAckKey())
+                    .ackQueueType(true)
+                    .ackWaitBeforeRead(Duration.ofSeconds(20))
                     .build();
         }
 

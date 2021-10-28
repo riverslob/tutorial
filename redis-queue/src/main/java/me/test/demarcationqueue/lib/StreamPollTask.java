@@ -34,19 +34,21 @@ class StreamPollTask<K, V> implements Task {
     private final ErrorHandler errorHandler;
     private final Predicate<Throwable> cancelSubscriptionOnError;
     private final Function<ReadOffset, Optional<CallBackData<V>>> readFunction;
+    private final Duration pollTimeout ;
 
     private final PollState pollState;
 
     private volatile boolean isInEventLoop = false;
 
     StreamPollTask(QueueReadOptions<K> streamRequest, MessageListener<V> listener, ErrorHandler errorHandler,
-                   Function<ReadOffset, Optional<CallBackData<V>>> readFunction) {
+                   Function<ReadOffset, Optional<CallBackData<V>>> readFunction,Duration pollTimeout) {
 
         this.listener = listener;
         this.errorHandler = Optional.ofNullable(streamRequest.getErrorHandler()).orElse(errorHandler);
         this.cancelSubscriptionOnError = streamRequest.getCancelSubscriptionOnError();
         this.readFunction = readFunction;
         this.pollState = PollState.standalone();
+        this.pollTimeout = pollTimeout;
     }
 
     @Override
@@ -91,6 +93,9 @@ class StreamPollTask<K, V> implements Task {
                 listener.preRead();
                 Optional<CallBackData<V>> raw = readRecords();
                 raw.ifPresent(this::deserializeAndEmitRecords);
+                if(!raw.isPresent()){
+                   sleep();
+                }
             } catch (InterruptedException e) {
 
                 cancel();
@@ -104,6 +109,14 @@ class StreamPollTask<K, V> implements Task {
                 errorHandler.handleError(e);
             }
         } while (pollState.isSubscriptionActive());
+    }
+
+    protected void sleep() {
+        try {
+            TimeUnit.SECONDS.sleep(pollTimeout.getSeconds());
+        } catch (InterruptedException e) {
+            errorHandler.handleError(e);
+        }
     }
 
     private Optional<CallBackData<V>> readRecords() {

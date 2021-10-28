@@ -3,6 +3,7 @@ package me.test.demarcationqueue.use;
 import lombok.RequiredArgsConstructor;
 import me.test.demarcationqueue.use.HighQueueMessageListener.HighQueueReadRegisterConfig;
 import me.test.demarcationqueue.use.NormalQueueMessageListener.NormalQueueReadRegisterConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -12,6 +13,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class QueueProducer {
+    @Qualifier("myStringRedisTemplate")
     private final StringRedisTemplate redisTemplate;
     private final HighQueueReadRegisterConfig highQueueReadRegisterConfig;
     private final NormalQueueReadRegisterConfig normalQueueReadRegisterConfig;

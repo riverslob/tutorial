@@ -36,7 +36,7 @@ class QueueProducerTest {
 //        RDQueue rdQueue = new RDQueue(redisTemplate, redisLock, new DemarcationCallBack());
 
         //when
-        List<String> highPriorityContents = getHighPriorityContents(1000);
+        List<String> highPriorityContents = getHighPriorityContents(10);
         List<String> normalPriorityContents = new ArrayList<>();//getNormalPriorityContents(100);
         queueProducer.produce(highPriorityContents, normalPriorityContents);
 

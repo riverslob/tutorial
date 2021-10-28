@@ -38,19 +38,16 @@ public class NormalQueueMessageListener extends BaseJobMessageListener {
         private final QueueReadOptions<String> options;
         private final NormalQueueMessageListener listener;
 
-        public NormalQueueReadRegisterConfig(NormalQueueMessageListener listener, RedisLock redisLock) {
+        public NormalQueueReadRegisterConfig(NormalQueueMessageListener listener) {
             Config config = Config.getInstance();
-            this.options = buildReadOptions(redisLock, config);
+            this.options = buildReadOptions(config);
             this.listener = listener;
         }
 
-        private QueueReadOptions<String> buildReadOptions(RedisLock redisLock, Config config) {
+        private QueueReadOptions<String> buildReadOptions( Config config) {
             return QueueReadOptions.<String>builder()
                     .key(config.getNormalQueueKey())
                     .ackKey(config.getAckKey())
-                    .lockKey(config.getLockKey())
-                    .redisLock(redisLock)
-                    .ackScorePrefix(config.getNormalQueueAckScorePrefix())
                     .build();
         }
 

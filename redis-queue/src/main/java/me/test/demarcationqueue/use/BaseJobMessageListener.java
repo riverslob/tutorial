@@ -18,7 +18,6 @@ public abstract class BaseJobMessageListener implements MessageListener<String> 
         try {
             addRunningNum(callBackData.getData().size());
             execute(callBackData.getData(), wrapper(callBackData.getPutItBack()), wrapper(callBackData.getAck()));
-            afterExecute(true);
         } catch (Exception e) {
             log.error("zrangebyscore({}, {})", "", e);
         }
@@ -37,12 +36,6 @@ public abstract class BaseJobMessageListener implements MessageListener<String> 
             e.printStackTrace();
         }
         ack.accept(data);
-    }
-
-    protected void afterExecute(boolean hasData) {
-        if (!hasData) {
-            sleep();
-        }
     }
 
     protected void sleep() {

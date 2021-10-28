@@ -2,13 +2,19 @@
 package me.test.demarcationqueue;
 
 import lombok.RequiredArgsConstructor;
+import me.test.demarcationqueue.lib.MessageListener;
 import me.test.demarcationqueue.lib.QueueMessageListenerContainer;
 import me.test.demarcationqueue.lib.QueueMessageListenerContainer.QueueReadRegisterConfig;
+import me.test.demarcationqueue.lib.QueueReadOptions;
+import me.test.demarcationqueue.use.AckQueueMessageListener;
+import me.test.demarcationqueue.use.Config;
 import me.test.demarcationqueue.use.HighQueueMessageListener;
 import me.test.demarcationqueue.use.RedisLockImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -18,24 +24,26 @@ import java.util.stream.Stream;
 public class RedisConfig {
 
     @Bean
-    public QueueMessageListenerContainer<String, String> subscription(RedisConnectionFactory factory/*, List<QueueReadRegisterConfig<String, String>> list*/) {
+    public QueueMessageListenerContainer<String, String> subscription(RedisConnectionFactory factory, List<QueueReadRegisterConfig<String, String>> list) {
         QueueMessageListenerContainer<String, String> container = QueueMessageListenerContainer.create(factory);
-//        list.forEach(container::receive);
-        HighQueueMessageListener messageListener = new HighQueueMessageListener();
-        RedisLockImpl redisLock = new RedisLockImpl();
-        Stream.iterate(1,it->it+1).limit(10).forEach(it->{
-            container.receive(new HighQueueMessageListener.HighQueueReadRegisterConfig(messageListener,redisLock));
-        });
+        list.forEach(container::receive);
         container.start();
         return container;
     }
-/*
-    @Bean(destroyMethod="shutdown")
-    RedissonClient redisson() throws IOException {
-        //1、创建配置
-        Config config = new Config();
-        config.useSingleServer()
-                .setAddress("192.168.43.129:6379");
-        return Redisson.create(config);
-    }*/
+
+    @Profile("prod")
+    @Bean("myStringRedisTemplate")
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
+
+    @Profile("dev")
+    @Bean("myStringRedisTemplate")
+    public StringRedisTemplate stringRedisTemplate2(RedisConnectionFactory redisConnectionFactory) {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
 }

@@ -36,11 +36,11 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import static me.test.demarcationqueue.lib.LuaScriptConst.QUEUE_READ_AND_ADD_ACK;
+import static me.test.demarcationqueue.lib.LuaScriptConst.*;
 
 @Slf4j
 public class DefaultQueueMessageListenerContainer<K, V> implements QueueMessageListenerContainer<K, V> {
@@ -140,73 +140,44 @@ public class DefaultQueueMessageListenerContainer<K, V> implements QueueMessageL
 
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private StreamPollTask<K, V> getReadTask(QueueReadOptions<K> streamRequest, MessageListener<V> listener) {
+    private StreamPollTask<K, V> getReadTask(QueueReadOptions<K> readOptions, MessageListener<V> listener) {
 
-        Function<ReadOffset, Optional<CallBackData<V>>> readFunction = getReadFunction(streamRequest);
+        Function<ReadOffset, Optional<CallBackData<V>>> readFunction = getReadFunction(readOptions);
 
-        return new StreamPollTask<>(streamRequest, listener, containerOptions.getErrorHandler(), readFunction);
+        return new StreamPollTask<>(readOptions, listener, containerOptions.getErrorHandler(), readFunction, containerOptions.getPollTimeout());
     }
 
-    private Function<ReadOffset, Optional<CallBackData<V>>> getReadFunction(QueueReadOptions<K> streamRequest) {
-        if (streamRequest.listQueueType()) {
-            return (offset) -> {
-                if (streamRequest.hasLock()) {
-                    return readWithLock(streamRequest);
-                } else {
-                    return readData(streamRequest);
-                }
-            };
+    private Function<ReadOffset, Optional<CallBackData<V>>> getReadFunction(QueueReadOptions<K> readOptions) {
+        if (!readOptions.isAckQueueType()) {
+            return (offset) -> readData(readOptions);
         }
-        return (offset) -> {
-            Set<V> range = template.opsForZSet().range(streamRequest.getAckKey(), 0, 1);
-            return Optional.of(new CallBackData<>(new ArrayList<>(range), it -> {
-            }, it -> {
-            }));
-        };
+        return (offset) -> readAckData(readOptions);
     }
 
-    private Optional<CallBackData<V>> readWithLock(QueueReadOptions<K> streamRequest) {
-        boolean isLock = false;
-        try {
-            isLock = streamRequest.getRedisLock().lock(streamRequest.getLockKey(), 10000);
-
-            return readData(streamRequest);
-//        } catch (Exception e) {
-//            log.error("zrangebyscore({}, {})", streamRequest.getAckKey(), e);
-        } finally {
-            if (isLock)
-                streamRequest.getRedisLock().unlock(streamRequest.getLockKey());
-        }
+    private Optional<CallBackData<V>> readAckData(QueueReadOptions<K> readOptions) {
+        List<V> execute = template.execute(RedisScript.of(QUEUE_READ_ACK_AND_UPDATE_SCORE, List.class),
+                Lists.newArrayList(readOptions.getAckKey()),
+                String.valueOf(readOptions.getAckWaitBeforeRead().getSeconds()), String.valueOf(containerOptions.getBatchSize()));
+        return Optional.ofNullable(execute).filter(it1 -> !CollectionUtils.isEmpty(it1)).map(it -> new CallBackData<>(it, putItBackFun(readOptions), ackFun(readOptions)));
     }
 
-    private Optional<CallBackData<V>> readData(QueueReadOptions<K> streamRequest) {
-//        List<V> execute = template.opsForList().range(streamRequest.getKey(), 0, containerOptions.getBatchSize() - 1);
-//        Optional<List<V>> list = Optional.ofNullable(execute).filter(it -> !CollectionUtils.isEmpty(it));
-//        list.ifPresent(it -> {
-//            if (streamRequest.needAck()) {
-//                Set<ZSetOperations.TypedTuple<V>> collect = it.stream().map(id -> new DefaultTypedTuple<V>(id, streamRequest.getScore())).collect(Collectors.toSet());
-//                template.opsForZSet().add(streamRequest.getAckKey(), collect);
-//                template.opsForList().trim(streamRequest.getKey(), it.size(), -1);
-//            }
-//
-//
-//        });
+    private Optional<CallBackData<V>> readData(QueueReadOptions<K> readOptions) {
         List<V> execute = template.execute(RedisScript.of(QUEUE_READ_AND_ADD_ACK, List.class),
-                Lists.newArrayList(streamRequest.getKey(), streamRequest.getAckKey()),
-                String.valueOf(containerOptions.getBatchSize()), String.valueOf(streamRequest.getAckScorePrefix()));
-        return Optional.ofNullable(execute).filter(it1 -> !CollectionUtils.isEmpty(it1)).map(it -> new CallBackData<>(it, getPutItBack(streamRequest), getAck(streamRequest)));
+                Lists.newArrayList(readOptions.getKey(), readOptions.getAckKey()),
+                String.valueOf(containerOptions.getBatchSize()));
+        return Optional.ofNullable(execute).filter(it1 -> !CollectionUtils.isEmpty(it1)).map(it -> new CallBackData<>(it, putItBackFun(readOptions), ackFun(readOptions)));
     }
 
-    private Consumer<List<V>> getAck(QueueReadOptions<K> streamRequest) {
-        return data -> template.opsForZSet().remove(streamRequest.getAckKey(), data.toArray());
+    private Consumer<List<V>> ackFun(QueueReadOptions<K> readOptions) {
+        return data -> template.opsForZSet().remove(readOptions.getAckKey(), data.toArray());
     }
 
-    private Consumer<List<V>> getPutItBack(QueueReadOptions<K> streamRequest) {
+    private Consumer<List<V>> putItBackFun(QueueReadOptions<K> readOptions) {
         return data -> {
-//          从zset取出，再加回redis队列
-//        todo 需要考虑放回太多导致无法计算的场景,需要加锁
-            template.opsForList().leftPushAll(streamRequest.getKey(), data);
-            getAck(streamRequest).accept(data);
+//        todo 需要考虑放回太多导致无法计算的场景,可以考虑放回的位置(left,right)
+            template.execute(RedisScript.of(QUEUE_PUT_BACK_AND_REMOVE_ACK, Integer.class),
+                    Lists.newArrayList(readOptions.getKey(), readOptions.getAckKey()),
+                    data.stream().map(Object::toString).toArray());
         };
     }
 
