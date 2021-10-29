@@ -1,5 +1,7 @@
 package me.tutorial.test.validator;
 
+import lombok.ToString;
+
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
@@ -7,6 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@ToString
 public class User {
     @NotNull(message = "Name cannot be null")
     private String name;
