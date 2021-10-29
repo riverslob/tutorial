@@ -21,6 +21,26 @@ public class MealMenuRepositoryAdaptor implements MealMenuRepository {
         if (!mealMenuDao.findAll().iterator().hasNext()) {
             addDemo();
         }
+
+//        QMealMenuPo mealMenuPo = QMealMenuPo.mealMenuPo;
+//        Predicate abs = mealMenuPo.name.endsWith("abs").and(mealMenuPo.id.eq(1L));
+//        Iterable<MealMenuPo> all = mealMenuDao.findAll(abs);
+//        Specification<MealMenuPo> spec= new Specification<> {
+//            public Predicate toPredicate(Root<MealMenuPo> root, CriteriaQuery query, CriteriaBuilder cb) {
+//                return cb.lessThan(root.get(Customer_.createdAt), new LocalDate.minusYears(2));
+//            }
+//        };
+//
+//        Specification<MealMenuPo> spec= new Specification<MealMenuPo>() {
+//            @Override
+//            public Predicate toPredicate(Root<MealMenuPo> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+//                criteriaBuilder.createQuery()
+//                return criteriaBuilder.and(criteriaBuilder.equal(root.get("name"),"123"));
+//            }
+//        };
+//        mealMenuDao.findOne(spec);
+
+
         return MealMenuMapper.INSTANCE.poToDomain(mealMenuDao.findById(id));
     }
 

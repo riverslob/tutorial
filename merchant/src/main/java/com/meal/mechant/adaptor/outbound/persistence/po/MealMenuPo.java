@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Entity;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Getter
@@ -16,6 +17,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @SuperBuilder
 @Table(name = "t_meal_menu")
+//@NamedQuery("")
 public class MealMenuPo extends Persist{
     private String name;
     private double price;

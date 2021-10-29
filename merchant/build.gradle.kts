@@ -22,6 +22,11 @@ dependencies {
 //    implementation("commons-beanutils:commons-beanutils:1.9.4")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("com.querydsl:querydsl-core:5.0.0")
+    implementation("com.querydsl:querydsl-jpa:5.0.0")
+    annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jpa")
+    annotationProcessor("javax.persistence:javax.persistence-api:2.2")
+
 //    implementation("org.springframework.boot:spring-boot-starter-cache")
 //    implementation('org.springframework.boot:spring-boot-starter-validator'
 //    implementation("org.springframework.data:spring-data-redis:2.5.2")
