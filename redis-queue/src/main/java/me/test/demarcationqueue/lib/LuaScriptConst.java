@@ -46,6 +46,4 @@ public interface LuaScriptConst {
             "	redis.call('ZADD',ackKey, unpack(map)) \n" +
             "end \n" +
             "return list;";
-    String QUEUE_READ_ACK_AND_UPDATE_SCORE_temp = "" +
-            "local ackKey = KEYS[1] \nlocal durationSecond = ARGV[1] \nlocal fetchSize = ARGV[2] \nlocal currTime = redis.call('TIME')[1] \nlocal endRange = currTime\nlocal list = redis.call('ZRANGEBYSCORE',ackKey,0,endRange,'LIMIT',0,fetchSize) \nreturn list;";
 }
