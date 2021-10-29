@@ -32,7 +32,7 @@ class DomainLayerTest extends ArchitectureTest {
         @Test
         void domain_layer_annotated_and_extend_rule() {
             classes()
-                    .that().resideInAPackage("..domain.models..")
+                    .that().resideInAPackage("..domain.contexts..")
 
                     .should().beAnnotatedWith(DomainEntity.class)
                     .orShould().beAnnotatedWith(AggregateRoot.class)
@@ -43,6 +43,7 @@ class DomainLayerTest extends ArchitectureTest {
                     .orShould().beAnnotatedWith(Persistence.class)
                     .orShould().beAssignableTo(DomainException.class)
                     .orShould().beAnnotatedWith(Criteria.class)
+                    .orShould().notBeTopLevelClasses()
                     .as("The models in the domain should annotated one of the interfaces / classes in " +
                             "Entity, AggregateRoot, ValueObject, ReadModel, WriteModel, " +
                             "Service, Policy, Factory, Repository, DomainException, Criteria.")
