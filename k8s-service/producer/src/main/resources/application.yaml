@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: producer
+  profiles:
+    active: local
+
+server:
+  port: 8080
+
+logging:
+  config: classpath:logging-config.xml

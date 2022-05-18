@@ -1,0 +1,22 @@
+{{- define "helm-library.service.tpl" -}}
+{{- $requiredMsg := include "helm-library.default-check-required-msg" . -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name | quote}}
+  namespace: {{required (printf $requiredMsg "namespace") .Values.namespace | quote}}
+  labels: {{- include "helm-library.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: {{ required (printf $requiredMsg "service.port") .Values.service.port}}
+      protocol: TCP
+      targetPort: {{ required (printf $requiredMsg "container.port") .Values.container.port}}
+      name: http
+  selector:
+      {{- include "helm-library.selector-labels" . | nindent 4 }}
+  type: {{ required (printf $requiredMsg "service.type") .Values.service.type}}
+{{- end -}}
+
+{{- define "helm-library.service" -}}
+{{- include "helm-library.util.merge" (append . "helm-library.service.tpl") -}}
+{{- end -}}

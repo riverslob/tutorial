@@ -1,0 +1,31 @@
+{{- define "helm-library.deployment.tpl" -}}
+{{- $requiredMsg := include "helm-library.default-check-required-msg" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name | quote}}
+  namespace: {{required (printf $requiredMsg "namespace") .Values.namespace | quote}}
+  labels: {{- include "helm-library.labels" . | nindent 4 }}
+{{/*  annotations:*/}}
+{{/*    seccomp.security.alpha.kubernetes.io/pod: "runtime/default"*/}}
+spec:
+  replicas: {{required (printf $requiredMsg "deployment.initailReplicaCount") .Values.deployment.initailReplicaCount}}
+  selector:
+    matchLabels:
+      {{- include "helm-library.selector-labels" . | nindent 6 }}
+  template:
+    metadata:
+      namespace: {{required (printf $requiredMsg "namespace") .Values.namespace | quote}}
+      labels:
+        {{- include "helm-library.selector-labels" . | nindent 8 }}
+      annotations:
+        redeployOnChange: {{ randAlphaNum 10 | quote}}
+    spec:
+      containers:
+      -
+{{include "helm-library.container.tpl" . | indent 8}}
+{{- end -}}
+
+{{- define "helm-library.deployment" -}}
+{{- include "helm-library.util.merge" (append . "helm-library.deployment.tpl") -}}
+{{- end -}}

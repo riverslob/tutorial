@@ -1,0 +1,3 @@
+{{- include "helm-library.service" (list . "microservice.service") -}}
+{{- define "microservice.service" -}}
+{{- end -}}

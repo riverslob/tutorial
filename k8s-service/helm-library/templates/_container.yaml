@@ -1,0 +1,29 @@
+{{- define "helm-library.container.tpl" -}}
+{{- $requiredMsg := include "helm-library.default-check-required-msg" . -}}
+name: {{ .Release.Name | quote }}
+image: {{ required (printf $requiredMsg "container_iamge_digests") .Values.container_image_digests}}
+imagePullPolicy: IfNotPresent
+ports:
+  - containerPort: {{ required (printf $requiredMsg "container.port") .Values.container.port }}
+env:
+  {{ if .Values.env }}
+    {{- range $envs,$env := .Values.env -}}
+  - name: {{ $env.name }}
+      {{ if eq $env.type "secret"}}
+    valueFrom:
+      secretKeyRef:
+        name: {{ $env.object }}
+        key: {{ $env.key }}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  - name: SPRING_PROFILES_ACTIVE
+    value: {{ .Values.spring.profiles.active | quote }}
+  - name: SERVER_PORT
+    value: {{required (printf $requiredMsg "container.port") .Values.container.port | quote }}
+{{- end -}}
+
+{{- define "helm-library.container" -}}
+{{- println "" -}}
+{{- include "helm-library.util.merge" (append . "helm-library.container.tpl") | indent 8 -}}
+{{- end -}}

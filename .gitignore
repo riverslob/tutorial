@@ -5,3 +5,9 @@
 build
 
 .idea
+
+.fleet
+
+/**/Chart.lock
+/**/deployment/charts/
+#/k8s-service/consumer/deployment/charts/
